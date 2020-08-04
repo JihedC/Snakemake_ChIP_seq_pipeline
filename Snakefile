@@ -48,8 +48,8 @@ CASES = get_samples_per_treatment(treatment="treatment")
 CONTROLS = get_samples_per_treatment(treatment="control")
 
 GROUPS = {
-    "group1" : ["ChIP1", "ChIP2", "ChIP3"],
-    "group2" : ["ChIP4", "ChIP5", "ChIP6"]
+    "group1" : ["ChIP1", "ChIP3"],
+    "group2" : ["ChIP2", "ChIP4"]
 }                                           #I used this dictionnary to define the group of sample used in the multiBamSummary, might be improved a lot
 
 ##############
