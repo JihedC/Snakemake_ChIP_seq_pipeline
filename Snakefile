@@ -90,22 +90,9 @@ wildcard_constraints:
 ##############
 FASTP               =     expand(WORKING_DIR + "trimmed/" + "{sample}_{read}_trimmed.fq.gz", sample=SAMPLES, read={"R1", "R2"})
 BOWTIE2             =     expand(WORKING_DIR + "mapped/{sample}.bam", sample= SAMPLES)
-FASTQC              =     expand(RESULT_DIR + "fastqc/{sample}.fastqc.html", sample = SAMPLES)
+FASTQC              =     expand(RESULT_DIR + "fastqc/{sample}.fastqc.html", sample=SAMPLES)
+BIGWIG              =     expand(RESULT_DIR + "bigwig/{sample}_rpkm.bw", sample=SAMPLES)
 
-FASTQC_REPORTS  =     expand(RESULT_DIR + "fastqc/{sample}.fastqc.zip", sample=SAMPLES)
-BAM_INDEX       =     expand(RESULT_DIR + "mapped/{sample}.sorted.rmdup.bam.bai", sample=SAMPLES)
-BIGWIG          =     expand(RESULT_DIR + "bigwig/{sample}.bw", sample=SAMPLES)
-BED_NARROW      =     expand(RESULT_DIR + "bed/{sample}_peaks.narrowPeak", sample=SAMPLES)
-MULTIBAMSUMMARY =     RESULT_DIR + "multiBamSummary/MATRIX.npz"
-PLOTCORRELATION =     RESULT_DIR + "plotCorrelation/MATRIX.png"
-COMPUTEMATRIX   =     expand(RESULT_DIR + "computematrix/{sample}.{type}.gz", sample=SAMPLES, type={"TSS", "scale-regions"})
-HEATMAP         =     expand(RESULT_DIR + "heatmap/{sample}.{type}.pdf", sample=SAMPLES, type={"TSS", "scale-regions"})
-PLOTFINGERPRINT =     RESULT_DIR + "plotFingerprint/Fingerplot.pdf"
-PLOTPROFILE_PDF =     expand(RESULT_DIR + "plotProfile/{sample}.{type}.pdf", sample=SAMPLES, type={"TSS", "scale-regions"})
-PLOTPROFILE_BED =     expand(RESULT_DIR + "plotProfile/{sample}.{type}.bed", sample=SAMPLES, type={"TSS", "scale-regions"})
-MULTIQC         =     "qc/multiqc.html"
-FRAGMENTSIZE    =     RESULT_DIR + "bamPEFragmentSize/fragmentSize.png"
-PLOTCOVERAGE    =     RESULT_DIR + "plotCoverage/Coverage.png"
 
 ###############
 # Final output
@@ -114,7 +101,8 @@ rule all:
     input:
         FASTP,
         FASTQC,
-        BOWTIE2
+        BOWTIE2,
+        BIGWIG
     message: "ChIP-seq SE pipeline succesfully run."		#finger crossed to see this message!
 
     shell:"#rm -rf {WORKING_DIR}"
@@ -125,19 +113,6 @@ rule all:
 
 include : "rules/external_data.smk"
 include : 'rules/pre_processing.smk'
-include : "rules/macs2_peak_calling.smk"
+#include : "rules/macs2_peak_calling.smk"
 include : "rules/deeptools_post_processing.smk"
 
-
-rule multiqc:
-    input:
-        expand(RESULT_DIR + "fastqc/{sample}.fastqc.zip", sample= SAMPLES),
-        expand(RESULT_DIR + "bed/{treatment}_vs_{control}_peaks.xls", zip, treatment = CASES, control = CONTROLS)
-    output:
-        "qc/multiqc.html"
-    params:
-        ""  # Optional: extra parameters for multiqc.
-    log:
-        "logs/multiqc.log"
-    wrapper:
-        "0.27.1/bio/multiqc"

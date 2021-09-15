@@ -1,6 +1,4 @@
 ################## Rules used for QC ##################
-
-
 rule fastp:
     input:
         get_fastq
@@ -81,30 +79,23 @@ rule sort:
     input:
         WORKING_DIR + "mapped/{sample}.bam"
     output:
-        temp(RESULT_DIR + "mapped/{sample}.sorted.bam")
+        bam         =   RESULT_DIR + "mapped/{sample}.sorted.bam"
     message:"Sorting {wildcards.sample} bam file"
     threads: 10
     log:
         RESULT_DIR + "logs/samtools/{sample}.sort.log"
-    conda:
-        "../envs/samtools.yaml"
-    shell:
-        "samtools sort -@ {threads} -o {output} {input} &>{log}"
-
-rule rmdup:
-    input:
-        RESULT_DIR + "mapped/{sample}.sorted.bam"
-    output:
-        bam = RESULT_DIR + "mapped/{sample}.sorted.rmdup.bam",
-        bai = RESULT_DIR + "mapped/{sample}.sorted.rmdup.bam.bai"        #bai files required for the bigwig and bamCompare rules
-    message: "Removing duplicate from file {wildcards.sample}"
-    log:
-        RESULT_DIR + "logs/samtools/{sample}.sorted.rmdup.bam.log"
-    conda:
-        "../envs/samtools.yaml"
     shell:
         """
-        samtools rmdup -s {input} {output.bam} &>{log}
+        samtools sort -@ {threads} -o {output.bam} {input} &>{log}
         samtools index {output.bam}
         """
-        #samtools manual says "This command is obsolete. Use markdup instead
+
+rule index_bam:
+    input:
+        RESULT_DIR + "mapped/{sample}.sorted.bam"
+    output: 
+        RESULT_DIR + "mapped/{sample}.sorted.bam.bai"
+    log:
+        RESULT_DIR + "log/sort/{sample}.log"
+    shell:
+        "samtools index {input} 2>{log}"

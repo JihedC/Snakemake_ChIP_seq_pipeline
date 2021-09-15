@@ -6,7 +6,9 @@
 #SBATCH -t 24:00:00
 #SBATCH --mem=15000
 
-
+module purge
+module load genomics/ngs/samtools/1.11/gcc-8.3.1
+module load genomics/ngs/aligners/bowtie2/2.4.2/gcc-8.3.1
 echo Start time : `date`
 snakemake -p \
         --snakefile Snakefile \
