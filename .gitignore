@@ -1,0 +1,4 @@
+temp/*
+results/
+temp/trimmed/
+.snakemake/
