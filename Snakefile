@@ -92,7 +92,7 @@ FASTP               =     expand(WORKING_DIR + "trimmed/" + "{sample}_{read}_tri
 BOWTIE2             =     expand(WORKING_DIR + "mapped/{sample}.bam", sample= SAMPLES)
 FASTQC              =     expand(RESULT_DIR + "fastqc/{sample}.fastqc.html", sample=SAMPLES)
 BIGWIG              =     expand(RESULT_DIR + "bigwig/{sample}_rpkm.bw", sample=SAMPLES)
-
+MACS2               =     expand(RESULT_DIR + "macs2/{treatment}_vs_{control}_peaks.narrowPeak", treatment = CASES, control = CONTROLS)  
 
 ###############
 # Final output
@@ -102,10 +102,16 @@ rule all:
         FASTP,
         FASTQC,
         BOWTIE2,
-        BIGWIG
+        BIGWIG,
+        MACS2
+        
     message: "ChIP-seq SE pipeline succesfully run."		#finger crossed to see this message!
 
-    shell:"#rm -rf {WORKING_DIR}"
+    shell:"""
+    cp units.tsv RESULT_DIR 
+    cp config.yaml RESULT_DIR
+    #rm -rf {WORKING_DIR}
+    """
 
 ###############
 # Rules
@@ -113,6 +119,6 @@ rule all:
 
 include : "rules/external_data.smk"
 include : 'rules/pre_processing.smk'
-#include : "rules/macs2_peak_calling.smk"
+include : "rules/peak_calling.smk"
 include : "rules/deeptools_post_processing.smk"
 
