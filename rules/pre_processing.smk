@@ -71,8 +71,8 @@ rule align:
             shell("bowtie2 --very-sensitive --threads {threads} -x {params.index} \
             -U {input.forward_read} | samtools view -Sb - > {output.bams} 2>{log}")
         else:
-            shell("bowtie2 --very-sentitive --threads {threads} -x {params.index} \
-            -1 {input.forward_read} -2 {input.reverse_read} samtools view -Sb - > {output.bams} 2>{log}")    
+            shell("bowtie2 --very-sensitive --threads {threads} -x {params.index} \
+            -1 {input.forward_read} -2 {input.reverse_read} | samtools view -Sb - > {output.bams} 2>{log}")    
   
  
 rule sort:
